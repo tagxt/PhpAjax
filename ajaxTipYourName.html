@@ -1,0 +1,176 @@
+<!-- 
+ * Motto: Live and learn!
+ * Created by Sublime Text! .
+ * Author: 葛绪涛   Nickname: wordGe   QQ:690815818    
+ * Date: 2018/10/2 * Time: 11:13
+ * Filename: ajaxTipYourName.html
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>文本框中输入用户号，通过Ajax提示出用户的姓名</title>
+    <style type="text/css">
+        .geNum1 {
+            padding: 10px;
+            margin: 10px;
+            width: 90%;
+            border: 4px solid #0c0cdd;
+            float: left;
+            /*text-align: center;*/
+
+        }
+
+        .geNum2 {
+            padding: 2px;
+            margin: 2px;
+            border: 2px solid #00aa00;
+            float: left;
+            /*text-align: center;*/
+        }
+    </style>
+    <!--导入基本jQuery库-->
+    <script src="../../js/jquery-3.1.1.js" type="text/javascript"></script>
+    <!--导入基本的 jQuery 插件包-->
+    <script src="../../js/jquery.form.min.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        $(function () {
+            //当获得焦点时，隐藏相应的提示框
+            // $('#geUserID').focus(function () {
+            //     // alert('focus');
+            //     $('#tipText').empty();
+            //     $('#tipText').hide();
+            // });
+            //这是另一种书写方式  再者皆可以
+            $("#geUserID").on('focus', function () {
+                $('#tipText').empty();
+                $('#tipText').hide();
+            });
+
+            //打开网页，光标定位到 用户名框  geUserID
+            $("#geUserID").focus();
+            //失去光标时，进行Ajax的传输数据到 ajaxDemo.php
+            $("#geUserID").on('blur', function () {
+                //取得geUserID的值
+                // var geUserID=$('input[name=geUserID]').val();
+                var geUserID = $("#geUserID").val();
+                // alert(geUserID);
+                $(this).ajaxSubmit({
+                    type: 'post',//Ajax提交的方式
+                    url: 'ajaxResult.php',//Ajax把数据信息提交到的网页
+                    data: {
+                        'geUserID': geUserID
+                    },
+                    //提交前的回调函数，比如进行数据填写的验证
+                    beforeSubmit: function () {
+                        //在此可以加以对输入的内容加以验证，可以另写函数如,引用时函数并没有加参数调用。
+                        //showRequest();   //此函数是在外书写
+                        // alert(geUserID);
+                    },
+                    //    成功的回调函数，即从 ajaxResult.php接收信息，并进行处理
+                    success: function (msg) {  //msg 保存提交后的数据，一般为json数据
+
+                        //清空原有提示信息
+                        $('#tipText').empty();
+                        //此处是处理从ajaxResult.php 返回的数据
+                        var data = '';
+                        if (msg != '') {
+                            data = eval("(" + msg + ")");    //将返回的json数据进行解析，并赋给data
+                        }
+                        $('#tipText').html(data.userName);    //在#text中输出
+                        // $('#tipText').html('ok032' );    //在#text中输出
+                        $('#tipText').show();
+                        // alert('success');
+                    },
+                    //
+                    error: function (msg) {
+                        //   处理错误信息
+                        alert("error!");
+                        $('#tipText').empty();
+                        $('#tipText').html('网络错误信息！');
+                        $('#tipText').show();
+                    }
+                });
+                return false;
+            });
+            //    试验一下input 的按键，实现按ESC 清除  geUserID 的内容
+            $("input").keyup(function (event) {
+                $(this).css("background-color", "#FFFFCC");
+                // $(this).css("background-color","red");
+                //兼容浏览器
+                var e = (event) ? event : window.event;
+                if (e.keyCode == 27) {
+                    $(this).css("background-color", "#aa3300");
+                    $(this).val("").focus();
+                    // alert("ESC");
+                }
+                if (e.keyCode == 13) {
+                    // var thisId='';
+                    // //获取当前 元素的 id
+                    // thisId=$(this).attr('id');
+                    // $("#gePassword").focus();
+                    // // alert(thisId);
+                    // if(thisId=='geUserID'){
+                    //     alert(thisId);
+                    // }
+                    //以下代码是通过 jQuery 完成，试验通过
+                    var inputs = $("input");//得到所有input对象
+                    for (var i = 0; i < inputs.length; i++) {
+                        // 如果是最后一个，则回到第一个
+                        if (i == (inputs.length - 1)) {
+                            inputs[0].focus();
+                            break;
+                        } else if (this == inputs[i]) {
+                            inputs[i + 1].focus();
+                            break;
+                        }
+                    }
+
+                //    以下是用javaScript 来完成，试验通过
+                //     var ipt=document.getElementsByTagName('input');
+                //     for(var i=0;i<ipt.length;i++){
+                //         if(i==(ipt.length-1)){
+                //             ipt[0].focus();
+                //             break;
+                //         }else if (this==ipt[i]){
+                //             ipt[i+1].focus();
+                //             break;
+                //         }
+                //     }
+
+                }
+            });
+            $("input").blur(function () {
+                $(this).css("background-color", "#D6D6FF");
+                // $("input").css("background-color","#D6D6FF");
+            });
+        })
+
+    </script>
+</head>
+<body>
+输入用户的用户号，光标离开时，如果后台数据库中存在与之对应的用户名，则可以提示出其姓名
+<fieldset>
+    <legend>输入用户编号和密码：</legend>
+    <div class="geNum1">
+        <div class="geNum2">
+            <label for="geUserID">用户编号</label>
+            <input type="text" name="geUserID" id="geUserID">
+        </div>
+        <div class="geNum2" id="tipText" style="display:none">
+        </div>
+    </div>
+    <div class="geNum1">
+        <div class="geNum2">
+            <label for="gePassword">密码</label>
+            <input type="password" name="gePassword" id="gePassword">
+        </div>
+    </div>
+    <div class="geNum1">
+        <div class="geNum2">
+            <button name="geButton" id="geButton">提交</button>
+        </div>
+    </div>
+</fieldset>
+</body>
+</html>

@@ -1,0 +1,129 @@
+<!-- 
+ * Motto: Live and learn!
+ * Created by Sublime Text! .
+ * Author: 葛绪涛   Nickname: wordGe   QQ:690815818    
+ * Date: 2018/10/1 * Time: 6:16
+ * Filename: p213x.html
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <style type="text/css">
+        .c_legend {
+            font-family: "Arial", "微软雅黑", "宋体";
+            font-size: large;
+            color: #ff0000;
+        }
+
+        .floatLeft {
+            float: left;
+            border: 2px solid green;
+            width: 90%;
+            margin: 10px;
+            padding: 20px;
+        }
+    </style>
+    <meta charset="UTF-8">
+    <title>试验html页面输入用户ID,紧接提示出其姓名</title>
+    <script src="../../js/jquery-3.1.1.js" type="text/javascript"></script>
+    <script src="../../js/jquery.form.min.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        var title = $('input[name=title]').val(),
+            content = $('textarea').val();
+        $(function () {
+
+
+            $("#myForm").ajaxForm(function () {
+                $('#output1').html("OK");
+            });
+            $("#myForm").ajaxSubmit(function () {
+
+            });
+
+            $('#myButton').on('click', function () {
+
+                $('#myForm2').on('submit', function () {
+                    //获得要提交的值
+                    title = $('input[name=title]').val(),
+                        content = $('textarea').val();
+                    // alert(title + content);
+                    // showRequest();
+                    $(this).ajaxSubmit({
+                        type: 'post', // 提交方式 get/post
+                        url: 'result.php', // 需要提交的 url
+                        data: {
+                            'title': title,
+                            'content': content
+                        },
+                        //提交前的回调函数
+                        beforeSubmit: function () {
+                            //在此可以加以对输入的内容加以验证，可以另写函数如,引用时函数并没有加参数调用。
+                            showRequest();
+                            // alert(title + content);
+                        },
+                        //这个成功后的回调费了点周折2018年10月2日10:29:35
+
+                        success: function (msg) { // msg 保存提交后返回的数据，一般为 json 数据
+                            // 此处可对 msg 作相关处理
+                            alert('提交成功！');
+                            $('#text').empty();   //清空Text里面的所有内容
+                            var data='';
+                            if(msg!=''){
+                                data = eval("("+msg+")");    //将返回的json数据进行解析，并赋给data
+                            }
+                            $('#text').html("标题为：" + data.title + ",内容为：" + data.content);    //在#text中输出
+                            console.log(data);    //控制台输出
+
+                        },
+                        error:function(msg){
+                        //返回失败的回调函数
+                            alert("error!");
+                            console.log(msg);
+                        }
+
+                    });
+                    $(this).resetForm(); // 提交后重置表单
+                    return false; // 阻止表单自动提交事件
+                });
+            });
+        });
+
+        function showRequest(formData, jqForm, options) {
+            alert('beforeSubmit!');
+            alert(title + content);
+        }
+    </script>
+
+</head>
+<body>
+<!--添加一个Form表单，-->
+<form id="myForm" action="result.php" method="post">
+    <fieldset>
+        <legend class="c_legend">试验输入用户代码后，如果存在则提示出当前的用户姓名</legend>
+        <!---->
+        <div class="floatLeft">
+            <div>
+                <p class="c_legend">This </p>
+                <label for="userName">姓名：</label>
+                <input type="text" id="userName" name="userName">
+            </div>
+            <div id="output1" style="display:none"></div>
+        </div>
+        <div class="floatLeft">
+            <label for="userPassword">密码</label>
+            <input type="text" id="userPassword" name="userPassword">
+        </div>
+        <div class="floatLeft">
+            <input type="submit" id="mySubmit" value="提交">
+        </div>
+    </fieldset>
+
+</form>
+<form id="myForm2">
+    标题：<input type="text" name="title"/><br/>
+    内容：<textarea name="content"></textarea><br/>
+    <button id="myButton">提交</button>
+    <span id="text">123</span><!-- 用以显示返回来的数据，只刷新这部分地方 -->
+</form>
+</body>
+</html>
